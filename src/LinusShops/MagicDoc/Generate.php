@@ -35,10 +35,20 @@ class Generate extends Command
             return;
         }
 
-        $class = '';
-        $json = file_get_contents('');
+        $config = json_decode(file_get_contents('magicdoc.json'), true);
+        foreach ($config as $mapping) {
+            $this->processMapping(
+                $mapping['source'],
+                $mapping['class']
+            );
+        }
+    }
 
-        $decoded = json_decode($json, true)[0];
+    private function processMapping($source, $class)
+    {
+        $json = file_get_contents($source);
+
+        $decoded = json_decode($json, true);
         $doc = "";
         foreach ($decoded as $key=>$value) {
             $type = gettype($value);
