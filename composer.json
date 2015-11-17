@@ -1,0 +1,45 @@
+{
+  "name": "linusshops/magicdoc",
+  "description": "Autogenerate phpdoc for magic methods from json documents",
+  "version": "0.1.1",
+  "type": "utility",
+  "keywords": [
+    "magento",
+    "module",
+    "linus shops",
+    "canadas motorcycle",
+    "mx canada",
+    "prophet",
+    "utility"
+  ],
+  "homepage": "https://github.com/linusshops/prophet",
+  "license": [
+    "MIT"
+  ],
+  "authors": [
+    {
+      "name": "Sam Schmidt",
+      "email": "samuel@dersam.net",
+      "homepage": "http://dersam.net",
+      "role": "Web Developer"
+    },
+    {
+      "name": "Linus Shops Inc",
+      "email": "corporate@linusshops.com",
+      "homepage": "http://www.linusshops.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3",
+    "ext-json": "*",
+    "symfony/console": "~2.7"
+  },
+  "bin": [
+    "magicdoc"
+  ],
+  "autoload": {
+    "psr-4": {
+      "LinusShops\\MagicDoc\\":"src/LinusShops/MagicDoc"
+    }
+  }
+}
