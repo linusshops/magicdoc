@@ -36,8 +36,11 @@ each object representing a json document and a class that it will be mapped to.
 ```
 
 `source`: required, specifies the location of the json file to map
+
 `destination`: required, the location of the destination class
+
 `types`: optional, allows specifying types for certain elements. Magicdoc will infer basic types (string, bool, integer), but this allows to specify objects.
+
 `parameters`: optional, allows specifying a list of arguments. Magicdoc will default to a standard variadic parameter (...$parameters) 
 
 Finally, the destination class must have the `{{magicdoc_start}}` and `{{magicdoc_end}}`
