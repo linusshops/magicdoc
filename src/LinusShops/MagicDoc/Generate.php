@@ -39,29 +39,32 @@ class Generate extends Command
         foreach ($config as $mapping) {
             $this->processMapping(
                 $mapping['source'],
-                $mapping['destination'],
-                $mapping['interface_name']
+                $mapping['destination']
             );
         }
     }
 
-    private function processMapping($source, $destination, $interfaceName)
+    private function processMapping($source, $destination)
     {
         $json = file_get_contents($source);
 
         $decoded = json_decode($json, true);
-        $interface = "<?php\n/**\n";
+        $doc = "";
         foreach ($decoded as $key=>$value) {
             $type = gettype($value);
             if ($type == 'NULL') {
                 $type = 'string';
             }
-            $interface .= " * @method {$type} {$key}(...\$parameters)\n";
+            $doc .= " * @method {$type} {$key}(...\$parameters)\n";
         }
 
-        $interface .= "*/\ninterface {$interfaceName} {}";
+        $contents = file_get_contents($destination);
+        $startPosition = strpos($contents, self::START_TAG) + strlen(self::START_TAG);
+        $endPosition = strpos($contents, self::END_TAG) - 3; //Subtract 3 to maintain ' * '
+        $length = $endPosition - $startPosition;
 
-        file_put_contents($destination, $interface);
+        $newContents = substr_replace($contents, "\n{$doc}", $startPosition, $length);
+        file_put_contents($destination, $newContents);
     }
 
     private function configIsPresent()
