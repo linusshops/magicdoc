@@ -40,12 +40,13 @@ class Generate extends Command
             $this->processMapping(
                 $mapping['source'],
                 $mapping['destination'],
-                $mapping['types']
+                $mapping['types'],
+                $mapping['parameters']
             );
         }
     }
 
-    private function processMapping($source, $destination, $types)
+    private function processMapping($source, $destination, $types, $parameters)
     {
         $json = file_get_contents($source);
 
@@ -60,7 +61,14 @@ class Generate extends Command
             } else {
                 $type = $types[$key];
             }
-            $doc .= " * @method {$type} {$key}(...\$parameters)\n";
+
+            if (!isset($parameters[$key])) {
+                $params = "...\$parameters";
+            } else {
+                $params = $parameters[$key];
+            }
+
+            $doc .= " * @method {$type} {$key}({$params})\n";
         }
 
         $contents = file_get_contents($destination);
