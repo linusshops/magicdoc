@@ -37,16 +37,26 @@ class Generate extends Command
 
         $config = json_decode(file_get_contents('magicdoc.json'), true);
         foreach ($config as $mapping) {
+            if (!isset($mapping['source'])) {
+                $output->writeln(array('<error>Source not specified</error>'));
+                return;
+            }
+
+            if (!isset($mapping['destination'])) {
+                $output->writeln(array('<error>Destination not specified</error>'));
+                return;
+            }
+
             $this->processMapping(
                 $mapping['source'],
                 $mapping['destination'],
-                $mapping['types'],
-                $mapping['parameters']
+                isset($mapping['types']) ? $mapping['types'] : array(),
+                isset($mapping['parameters']) ? $mapping['parameters'] : array()
             );
         }
     }
 
-    private function processMapping($source, $destination, $types, $parameters)
+    private function processMapping($source, $destination, $types = array(), $parameters = array())
     {
         $json = file_get_contents($source);
 
