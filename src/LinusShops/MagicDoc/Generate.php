@@ -39,21 +39,26 @@ class Generate extends Command
         foreach ($config as $mapping) {
             $this->processMapping(
                 $mapping['source'],
-                $mapping['destination']
+                $mapping['destination'],
+                $mapping['types']
             );
         }
     }
 
-    private function processMapping($source, $destination)
+    private function processMapping($source, $destination, $types)
     {
         $json = file_get_contents($source);
 
         $decoded = json_decode($json, true);
         $doc = "";
         foreach ($decoded as $key=>$value) {
-            $type = gettype($value);
-            if ($type == 'NULL') {
-                $type = 'string';
+            if (!isset($types[$key])) {
+                $type = gettype($value);
+                if ($type == 'NULL') {
+                    $type = 'string';
+                }
+            } else {
+                $type = $types[$key];
             }
             $doc .= " * @method {$type} {$key}(...\$parameters)\n";
         }
