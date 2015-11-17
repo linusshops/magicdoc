@@ -40,7 +40,7 @@ each object representing a json document and a class that it will be mapped to.
 `types`: optional, allows specifying types for certain elements. Magicdoc will infer basic types (string, bool, integer), but this allows to specify objects.
 `parameters`: optional, allows specifying a list of arguments. Magicdoc will default to a standard variadic parameter (...$parameters) 
 
-Finally, the destination class must have the {{magicdoc_start}} and {{magicdoc_end}}
+Finally, the destination class must have the `{{magicdoc_start}}` and `{{magicdoc_end}}`
 tags added in the location you want the @method listing to appear. Generally, this
 is in the class docblock.
 
