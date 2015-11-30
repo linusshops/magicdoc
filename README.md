@@ -47,5 +47,36 @@ Finally, the destination class must have the `{{magicdoc_start}}` and `{{magicdo
 tags added in the location you want the @method listing to appear. Generally, this
 is in the class docblock.
 
+## Url configuration
+Magicdoc can also read directly from your api.
+
+```
+[
+  {
+    "source":{
+      "type": "url",
+      "url": "http://example.com/endpoint",
+      "headers": {
+        "Authorization": "Some token",
+        "Content-Type":"application/json"
+      },
+      "body":"{\"option\":\"hello\"}",
+      "method":"POST"
+    },
+    "destination":"src/LinusShops/Example.php",
+    "options":{
+      "bust_wrapper_array":true
+    }
+  }
+]
+```
+`source`: specifies the options to pass to make the api request. The following
+options are not required- headers, body, method (defaults to GET).
+
+`options`: specifies actions to take with the received json, mostly preprocessing
+`options=>bust_wrapper_array`: if your API wraps returned objects in an array, you
+can set this option to pop the first object out of the array to be used for
+documentation generation.
+
 ## Usage
 Run `magicdoc` from the directory containing your magicdoc.json.
