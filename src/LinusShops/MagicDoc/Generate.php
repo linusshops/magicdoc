@@ -47,22 +47,35 @@ class Generate extends Command
                 return;
             }
 
-            $this->processMapping(
-                $mapping['source'],
-                $mapping['destination'],
-                isset($mapping['types']) ? $mapping['types'] : array(),
-                isset($mapping['parameters']) ? $mapping['parameters'] : array()
-            );
+            if (is_array($mapping['source'])) {
+
+            } else {
+                $this->processFileMapping(
+                    $mapping['source'],
+                    $mapping['destination'],
+                    isset($mapping['types']) ? $mapping['types'] : array(),
+                    isset($mapping['parameters']) ? $mapping['parameters'] : array()
+                );
+            }
         }
     }
 
-    private function processMapping($source, $destination, $types = array(), $parameters = array())
+    private function processFileMapping($source, $destination, $types = array(), $parameters = array())
     {
         $json = file_get_contents($source);
 
         $decoded = json_decode($json, true);
-        $doc = "";
-        foreach ($decoded as $key=>$value) {
+
+        $this->writeDoc(
+                $destination,
+                $this->generateDoc($decoded, $types, $parameters)
+            );
+    }
+
+    private function generateDoc($decodedJsonData, $types, $parameters)
+    {
+        $docblock = "";
+        foreach ($decodedJsonData as $key=>$value) {
             if (!isset($types[$key])) {
                 $type = gettype($value);
                 if ($type == 'NULL') {
@@ -78,15 +91,20 @@ class Generate extends Command
                 $params = $parameters[$key];
             }
 
-            $doc .= " * @method {$type} {$key}({$params})\n";
+            $docblock .= " * @method {$type} {$key}({$params})\n";
         }
 
+        return $docblock;
+    }
+
+    private function writeDoc($destination, $docblock)
+    {
         $contents = file_get_contents($destination);
         $startPosition = strpos($contents, self::START_TAG) + strlen(self::START_TAG);
         $endPosition = strpos($contents, self::END_TAG) - 3; //Subtract 3 to maintain ' * '
         $length = $endPosition - $startPosition;
 
-        $newContents = substr_replace($contents, "\n{$doc}", $startPosition, $length);
+        $newContents = substr_replace($contents, "\n{$docblock}", $startPosition, $length);
         file_put_contents($destination, $newContents);
     }
 
