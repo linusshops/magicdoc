@@ -9,6 +9,7 @@
 
 namespace LinusShops\MagicDoc;
 
+use GuzzleHttp\Client;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -36,6 +37,11 @@ class Generate extends Command
         }
 
         $config = json_decode(file_get_contents('magicdoc.json'), true);
+        if (!$config) {
+            $output->writeln(array('<error>./magicdoc.json is not valid json.</error>'));
+            return;
+        }
+
         foreach ($config as $mapping) {
             if (!isset($mapping['source'])) {
                 $output->writeln(array('<error>Source not specified</error>'));
@@ -48,7 +54,25 @@ class Generate extends Command
             }
 
             if (is_array($mapping['source'])) {
-
+                switch($mapping['source']['type']) {
+                    case 'file':
+                        $this->processFileMapping(
+                            $mapping['source']['path'],
+                            $mapping['destination'],
+                            isset($mapping['types']) ? $mapping['types'] : array(),
+                            isset($mapping['parameters']) ? $mapping['parameters'] : array()
+                        );
+                        break;
+                    case 'url':
+                        $this->processUrlMapping(
+                            $mapping['source'],
+                            $mapping['destination'],
+                            isset($mapping['types']) ? $mapping['types'] : array(),
+                            isset($mapping['parameters']) ? $mapping['parameters'] : array(),
+                            isset($mapping['options']) ? $mapping['options']: array()
+                        );
+                        break;
+                }
             } else {
                 $this->processFileMapping(
                     $mapping['source'],
@@ -58,6 +82,31 @@ class Generate extends Command
                 );
             }
         }
+    }
+
+    private function processUrlMapping($source, $destination, $types = array(), $parameters = array(), $options = array())
+    {
+        if (!isset($source['url'])) {
+            throw new \Exception("Url is required");
+        }
+
+        $url = $source['url'];
+        $headers = isset($source['headers']) ? $source['headers'] : array();
+        $body = isset($source['body']) ? $source['body'] : null;
+        $method = isset($source['method']) ? $source['method'] : 'GET';
+
+        $client = new Client(array('headers' => $headers));
+        $res = $client->request($method, $url, array('body'=>$body));
+        $decoded = json_decode($res->getBody(), true);
+
+        if (isset($options['bust_wrapper_array']) && $options['bust_wrapper_array']){
+            $decoded = array_pop($decoded);
+        }
+
+        $this->writeDoc(
+            $destination,
+            $this->generateDoc($decoded, $types, $parameters)
+        );
     }
 
     private function processFileMapping($source, $destination, $types = array(), $parameters = array())

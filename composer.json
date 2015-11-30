@@ -32,7 +32,8 @@
   "require": {
     "php": ">=5.3",
     "ext-json": "*",
-    "symfony/console": "~2.7"
+    "symfony/console": "~2.7",
+    "guzzlehttp/guzzle": "^6.1.1"
   },
   "bin": [
     "magicdoc"
