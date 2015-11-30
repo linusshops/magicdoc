@@ -74,6 +74,7 @@ Magicdoc can also read directly from your api.
 options are not required- headers, body, method (defaults to GET).
 
 `options`: specifies actions to take with the received json, mostly preprocessing
+
 `options=>bust_wrapper_array`: if your API wraps returned objects in an array, you
 can set this option to pop the first object out of the array to be used for
 documentation generation.
