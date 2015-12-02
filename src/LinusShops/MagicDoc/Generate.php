@@ -60,7 +60,8 @@ class Generate extends Command
                             $mapping['source']['path'],
                             $mapping['destination'],
                             isset($mapping['types']) ? $mapping['types'] : array(),
-                            isset($mapping['parameters']) ? $mapping['parameters'] : array()
+                            isset($mapping['parameters']) ? $mapping['parameters'] : array(),
+                            isset($mapping['options']) ? $mapping['options']: array()
                         );
                         break;
                     case 'url':
@@ -78,7 +79,8 @@ class Generate extends Command
                     $mapping['source'],
                     $mapping['destination'],
                     isset($mapping['types']) ? $mapping['types'] : array(),
-                    isset($mapping['parameters']) ? $mapping['parameters'] : array()
+                    isset($mapping['parameters']) ? $mapping['parameters'] : array(),
+                    isset($mapping['options']) ? $mapping['options']: array()
                 );
             }
         }
@@ -105,11 +107,11 @@ class Generate extends Command
 
         $this->writeDoc(
             $destination,
-            $this->generateDoc($decoded, $types, $parameters)
+            $this->generateDoc($decoded, $types, $parameters, $options)
         );
     }
 
-    private function processFileMapping($source, $destination, $types = array(), $parameters = array())
+    private function processFileMapping($source, $destination, $types = array(), $parameters = array(), $options = array())
     {
         $json = file_get_contents($source);
 
@@ -117,11 +119,11 @@ class Generate extends Command
 
         $this->writeDoc(
                 $destination,
-                $this->generateDoc($decoded, $types, $parameters)
+                $this->generateDoc($decoded, $types, $parameters, $options)
             );
     }
 
-    private function generateDoc($decodedJsonData, $types, $parameters)
+    private function generateDoc($decodedJsonData, $types, $parameters, $options = array())
     {
         $docblock = "";
         foreach ($decodedJsonData as $key=>$value) {
@@ -135,7 +137,15 @@ class Generate extends Command
             }
 
             if (!isset($parameters[$key])) {
-                $params = "...\$parameters";
+                //Arrays are always descendable
+                if($type == 'array') {
+                    $params = "...\$parameters";
+                }
+                else if (isset($options['parameter_default'])) {
+                    $params = $options['parameter_default'];
+                } else {
+                    $params = "...\$parameters";
+                }
             } else {
                 $params = $parameters[$key];
             }
