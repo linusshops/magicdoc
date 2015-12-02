@@ -86,6 +86,15 @@ class Generate extends Command
         }
     }
 
+    private function preprocess($decodedJson, $options)
+    {
+        if (isset($options['bust_wrapper_array']) && $options['bust_wrapper_array']){
+            $decodedJson = array_pop($decoded);
+        }
+
+        return $decodedJson;
+    }
+
     private function processUrlMapping($source, $destination, $types = array(), $parameters = array(), $options = array())
     {
         if (!isset($source['url'])) {
@@ -101,9 +110,7 @@ class Generate extends Command
         $res = $client->request($method, $url, array('body'=>$body));
         $decoded = json_decode($res->getBody(), true);
 
-        if (isset($options['bust_wrapper_array']) && $options['bust_wrapper_array']){
-            $decoded = array_pop($decoded);
-        }
+        $decoded = $this->preprocess($decoded, $options);
 
         $this->writeDoc(
             $destination,
@@ -116,6 +123,8 @@ class Generate extends Command
         $json = file_get_contents($source);
 
         $decoded = json_decode($json, true);
+
+        $decoded = $this->preprocess($decoded, $options);
 
         $this->writeDoc(
                 $destination,
