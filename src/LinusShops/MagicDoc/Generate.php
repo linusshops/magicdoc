@@ -89,7 +89,15 @@ class Generate extends Command
     private function preprocess($decodedJson, $options)
     {
         if (isset($options['bust_wrapper_array']) && $options['bust_wrapper_array']){
-            $decodedJson = array_pop($decoded);
+            $decodedJson = array_pop($decodedJson);
+        }
+
+        if (isset($options['descend'])) {
+            $descended = $decodedJson;
+            foreach (explode('|', $options['descend']) as $path) {
+                $descended = $descended[$path];
+            }
+            $decodedJson = $descended;
         }
 
         return $decodedJson;
@@ -107,8 +115,8 @@ class Generate extends Command
         $method = isset($source['method']) ? $source['method'] : 'GET';
 
         $client = new Client(array('headers' => $headers));
-        $res = $client->request($method, $url, array('body'=>$body));
-        $decoded = json_decode($res->getBody(), true);
+        $res = $client->request($method, $url);
+        $decoded = json_decode((string)$res->getBody(), true);
 
         $decoded = $this->preprocess($decoded, $options);
 
@@ -153,7 +161,7 @@ class Generate extends Command
                 else if (isset($options['parameter_default'])) {
                     $params = $options['parameter_default'];
                 } else {
-                    $params = "...\$parameters";
+                    $params = "";
                 }
             } else {
                 $params = $parameters[$key];
