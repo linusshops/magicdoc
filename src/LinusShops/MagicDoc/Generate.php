@@ -48,10 +48,14 @@ class Generate extends Command
                 return;
             }
 
-            if (!isset($mapping['destination'])) {
+            if (isset($mapping['source']['type'])
+                && !($mapping['source']['type'])=='magento'
+                && !isset($mapping['destination'])) {
                 $output->writeln(array('<error>Destination not specified</error>'));
                 return;
             }
+
+            $magentoRequests = array();
 
             if (is_array($mapping['source'])) {
                 switch($mapping['source']['type']) {
@@ -74,13 +78,7 @@ class Generate extends Command
                         );
                         break;
                     case 'magento':
-                        $this->processMagentoMapping(
-                            $mapping['source'],
-                            $mapping['destination'],
-                            isset($mapping['types']) ? $mapping['types'] : array(),
-                            isset($mapping['parameters']) ? $mapping['parameters'] : array(),
-                            isset($mapping['options']) ? $mapping['options']: array()
-                        );
+                        $magentoRequests[] = $mapping;
                         break;
                 }
             } else {
@@ -93,17 +91,40 @@ class Generate extends Command
                 );
             }
         }
+
+        if (!empty($magentoRequests)) {
+            $this->processMagentoMappingList(
+                $magentoRequests
+            );
+        }
     }
 
-    private function processMagentoMapping($source, $destination, $types = array(), $parameters = array(), $options = array())
+    private function processMagentoMappingList(array $requests)
     {
+        $docbody = "<?php \n";
         Magento::bootstrap();
+
+        foreach ($requests as $mapping) {
+            $docbody = $this->processMagentoMapping(
+                $docbody,
+                $mapping['source'],
+                isset($mapping['types']) ? $mapping['types'] : array(),
+                isset($mapping['parameters']) ? $mapping['parameters'] : array(),
+                isset($mapping['options']) ? $mapping['options'] : array()
+            );
+        }
+
+        file_put_contents("./__mage_ide_helper.php", $docbody);
+    }
+
+    private function processMagentoMapping($docbody, $source, $types = array(), $parameters = array(), $options = array())
+    {
         $model = \Mage::getModel($source['model'])->load($source['id']);
 
         $data = $model->getData();
         $classname = get_class($model);
 
-        $classdoc = "<?php  class {$classname} {";
+        $classdoc = "class {$classname} {";
 
         foreach ($data as $fieldname=>$value) {
             $parts = explode('_', $fieldname);
@@ -115,7 +136,8 @@ class Generate extends Command
 
         $classdoc .= "\n}";
         //Spy on the neighbours.
-        file_put_contents($destination, $classdoc);
+        $docbody .= "\n".$classdoc;
+        return $docbody;
     }
 
     private function preprocess($decodedJson, $options)
