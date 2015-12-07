@@ -86,7 +86,7 @@ Magicdoc can also generate an IDE helper for magic getters/setters in Magento mo
 {
     "source":{
       "type": "magento",
-      "model": "linus_garage/landing_model",
+      "model": "linus_example/product",
       "id": 1
     }
 }
