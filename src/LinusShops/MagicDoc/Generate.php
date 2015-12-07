@@ -73,6 +73,15 @@ class Generate extends Command
                             isset($mapping['options']) ? $mapping['options']: array()
                         );
                         break;
+                    case 'magento':
+                        $this->processMagentoMapping(
+                            $mapping['source'],
+                            $mapping['destination'],
+                            isset($mapping['types']) ? $mapping['types'] : array(),
+                            isset($mapping['parameters']) ? $mapping['parameters'] : array(),
+                            isset($mapping['options']) ? $mapping['options']: array()
+                        );
+                        break;
                 }
             } else {
                 $this->processFileMapping(
@@ -84,6 +93,29 @@ class Generate extends Command
                 );
             }
         }
+    }
+
+    private function processMagentoMapping($source, $destination, $types = array(), $parameters = array(), $options = array())
+    {
+        Magento::bootstrap();
+        $model = \Mage::getModel($source['model'])->load($source['id']);
+
+        $data = $model->getData();
+        $classname = get_class($model);
+
+        $classdoc = "<?php  class {$classname} {";
+
+        foreach ($data as $fieldname=>$value) {
+            $parts = explode('_', $fieldname);
+            $mapped = array_map(function($val){return ucfirst($val);}, $parts);
+            $methodName = implode('', $mapped);
+            $classdoc .= "\n public function get{$methodName}(){return '';}";
+            $classdoc .= "\n public function set{$methodName}(\$value){}";
+        }
+
+        $classdoc .= "\n}";
+        //Spy on the neighbours.
+        file_put_contents($destination, $classdoc);
     }
 
     private function preprocess($decodedJson, $options)
