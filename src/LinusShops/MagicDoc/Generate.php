@@ -42,6 +42,8 @@ class Generate extends Command
             return;
         }
 
+        $magentoRequests = array();
+
         foreach ($config as $mapping) {
             if (!isset($mapping['source'])) {
                 $output->writeln(array('<error>Source not specified</error>'));
@@ -54,8 +56,6 @@ class Generate extends Command
                 $output->writeln(array('<error>Destination not specified</error>'));
                 return;
             }
-
-            $magentoRequests = array();
 
             if (is_array($mapping['source'])) {
                 switch($mapping['source']['type']) {
@@ -134,7 +134,31 @@ class Generate extends Command
             if ($valueType == 'object') {
                 $valueType = get_class($value);
             }
-            $classdoc .= "\n /** \n @return {$valueType} \n */ \n public function get{$methodName}(){}";
+
+            switch ($valueType) {
+                case 'boolean':
+                    $returnForm = 'true';
+                    break;
+                case 'integer':
+                    $returnForm = '1';
+                    break;
+                case 'double':
+                    $returnForm = '1.0';
+                    break;
+                case 'array':
+                    $returnForm = array();
+                    break;
+                case 'string':
+                    $returnForm = '""';
+                    break;
+                case 'null':
+                    $returnForm = 'null';
+                    break;
+                default:
+                    $returnForm = "new {$valueType}()";
+            }
+
+            $classdoc .= "\n /** \n @return {$valueType} \n */ \n public function get{$methodName}(){return {$returnForm};}";
             $classdoc .= "\n public function set{$methodName}(\$value){}";
         }
 
