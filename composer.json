@@ -1,7 +1,7 @@
 {
   "name": "linusshops/magicdoc",
   "description": "Autogenerate phpdoc for magic methods from json documents",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "type": "utility",
   "keywords": [
     "magento",
