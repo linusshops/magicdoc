@@ -101,3 +101,6 @@ root of your magento project.
 
 ## Usage
 Run `magicdoc` from the directory containing your magicdoc.json.
+
+##License
+MIT
