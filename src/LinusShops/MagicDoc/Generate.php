@@ -130,7 +130,11 @@ class Generate extends Command
             $parts = explode('_', $fieldname);
             $mapped = array_map(function($val){return ucfirst($val);}, $parts);
             $methodName = implode('', $mapped);
-            $classdoc .= "\n public function get{$methodName}(){return '';}";
+            $valueType = gettype($value);
+            if ($valueType == 'object') {
+                $valueType = get_class($value);
+            }
+            $classdoc .= "\n /** \n @return {$valueType} \n */ \n public function get{$methodName}(){}";
             $classdoc .= "\n public function set{$methodName}(\$value){}";
         }
 
