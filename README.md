@@ -79,5 +79,25 @@ options are not required- headers, body, method (defaults to GET).
 can set this option to pop the first object out of the array to be used for
 documentation generation.
 
+## Magento Model IDE Helper
+Magicdoc can also generate an IDE helper for magic getters/setters in Magento models.
+
+```
+{
+    "source":{
+      "type": "magento",
+      "model": "linus_garage/landing_model",
+      "id": 1
+    }
+}
+```
+
+Magicdoc expects the magicdoc.json file to be in the root of your magento installation.
+
+The provided id should be a valid instance of the model, as magicdoc will inspect
+the types of the data contained to determine accurate return types. It will
+then generate a `__mage_ide_helper.php` file, which should be placed in the 
+root of your magento project.
+
 ## Usage
 Run `magicdoc` from the directory containing your magicdoc.json.
