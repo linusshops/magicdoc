@@ -55,8 +55,6 @@ class Generate extends Command
             return;
         }
 
-        print_r($magicdoc);
-
         $magentoRequests = array();
 
         foreach ($magicdoc['mappers'] as $mapping) {
