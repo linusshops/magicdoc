@@ -11,7 +11,9 @@ it would not be a good use of time to concretely implement every single one.
 Instead, an approach using the `__call` magic method was used.  The JSON document
 was read into an internal array, and the `__call` method was implemented to
 look at the name of the called method and any parameters provided to find
-the desired property.
+the desired property.  By using magic methods instead of object properties,
+it allowed descent into the JSON document without needing intermediary
+variables or loops.
 
 This left the issue of having many possible available properties, and wanting
 IDE hinting on them, solved by magicdoc.
