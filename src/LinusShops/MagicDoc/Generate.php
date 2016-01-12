@@ -36,15 +36,30 @@ class Generate extends Command
             return;
         }
 
-        $config = json_decode(file_get_contents('magicdoc.json'), true);
-        if (!$config) {
+        $jsonString = file_get_contents('magicdoc.json');
+        $magicdoc = json_decode($jsonString, true);
+        if (!$magicdoc) {
             $output->writeln(array('<error>./magicdoc.json is not valid json.</error>'));
             return;
         }
 
+        $vars = $magicdoc['vars'];
+
+        foreach ($vars as $key=>$value) {
+            $jsonString = str_replace('{{'.$key.'}}', $value, $jsonString);
+        }
+
+        $magicdoc = json_decode($jsonString, true);
+        if (!$magicdoc) {
+            $output->writeln(array('<error>Variable merge created invalid json string.</error>'));
+            return;
+        }
+
+        print_r($magicdoc);
+
         $magentoRequests = array();
 
-        foreach ($config as $mapping) {
+        foreach ($magicdoc['mappers'] as $mapping) {
             if (!isset($mapping['source'])) {
                 $output->writeln(array('<error>Source not specified</error>'));
                 return;
