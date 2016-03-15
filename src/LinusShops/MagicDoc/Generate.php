@@ -19,6 +19,8 @@ class Generate extends Command
     const START_TAG = '{{magicdoc_start}}';
     const END_TAG = '{{magicdoc_end}}';
 
+    private $flags = array();
+
     protected function configure()
     {
         $this
@@ -43,9 +45,13 @@ class Generate extends Command
             return;
         }
 
+        if (isset($magicdoc['flags']) && is_array($magicdoc['flags']) && count($magicdoc['flags']) > 0) {
+            $this->flags = $magicdoc['flags'];
+        }
+
         $vars = $magicdoc['vars'];
 
-        foreach ($vars as $key=>$value) {
+        foreach ($vars as $key => $value) {
             $jsonString = str_replace('{{'.$key.'}}', $value, $jsonString);
         }
 
@@ -71,7 +77,7 @@ class Generate extends Command
             }
 
             if (is_array($mapping['source'])) {
-                switch($mapping['source']['type']) {
+                switch ($mapping['source']['type']) {
                     case 'file':
                         $this->processFileMapping(
                             $mapping['source']['path'],
@@ -209,7 +215,13 @@ class Generate extends Command
         $body = isset($source['body']) ? $source['body'] : null;
         $method = isset($source['method']) ? $source['method'] : 'GET';
 
-        $client = new Client(array('headers' => $headers));
+        $options = array('headers' => $headers);
+
+        if (isset($this->flags['ssl_verify'])) {
+            $options['verify'] = $this->flags['ssl_verify'];
+        }
+
+        $client = new Client($options);
         $res = $client->request($method, $url);
         $decoded = json_decode((string)$res->getBody(), true);
 
