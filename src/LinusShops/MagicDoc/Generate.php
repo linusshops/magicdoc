@@ -215,13 +215,13 @@ class Generate extends Command
         $body = isset($source['body']) ? $source['body'] : null;
         $method = isset($source['method']) ? $source['method'] : 'GET';
 
-        $options = array('headers' => $headers);
+        $httpClientOptions = array('headers' => $headers);
 
         if (isset($this->flags['ssl_verify'])) {
-            $options['verify'] = $this->flags['ssl_verify'];
+            $httpClientOptions['verify'] = $this->flags['ssl_verify'];
         }
 
-        $client = new Client($options);
+        $client = new Client($httpClientOptions);
         $res = $client->request($method, $url);
         $decoded = json_decode((string)$res->getBody(), true);
 
